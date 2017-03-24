@@ -34,10 +34,7 @@ class DiningServer{
 	    estados[izq(k)] != COMIENDO && estados[der(k)] != COMIENDO){
 	    estados[k] = COMIENDO; //El filosofo no puede comer y se pone a pensar
 	    this.notifyAll();
-	} //else {
-	    // Si los filosofos a su lado están comiendo o quieren comer, se pone a pensar
-	    //estados[k] = PENSANDO;
-	//}
+	} 
     }
     
     /**

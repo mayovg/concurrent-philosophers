@@ -23,12 +23,12 @@ public class DiningPhilosophers{
 	 * el filósofo piensa y su hilo se bloquea durante el tiempo que piense 
 	 */
 	private void piensa() {
-	    //long tiempoPensando = ((long) (random.nextInt((int)tiempoPensar)))/100;
-	    tiempoPensar = (long) (Math.random() * (tiempoPensar/100)); 
+	    // no ver la siguiente linea
+	    long tiempoPensando = ((long) (random.nextInt((int)tiempoPensar)/10));
 	    System.out.printf("Tiempo: %d, el filósofo %d está pensando por %d ms \n",
-			      System.currentTimeMillis(), this.id, tiempoPensar);
+			      System.currentTimeMillis(), this.id, tiempoPensando);
 	    try {
-		Thread.sleep(this.tiempoPensar);
+		Thread.sleep(tiempoPensando);
 	    } catch(InterruptedException ie) {ie.printStackTrace();}
 	}
 
@@ -36,13 +36,11 @@ public class DiningPhilosophers{
 	 * el filósofo come y su hilo se bloquea durante el tiempo que coma
 	 */
 	private void come() {
-	    //long tiempoComiendo = ((long) (random.nextInt((int)tiempoComer))/100);
-	    //tiempoComer = random.nextLong();
-	    tiempoComer = (long) (Math.random() * (tiempoComer/100));
+	    long tiempoComiendo = ((long) (random.nextInt((int)tiempoComer))/10);
 	    System.out.printf("Tiempo: %d, el filósofo %d está comiendo por %d ms \n",
-			      System.currentTimeMillis(), this.id, tiempoComer);
+			      System.currentTimeMillis(), this.id, tiempoComiendo);
 	    try {
-		Thread.sleep(tiempoComer);
+		Thread.sleep(tiempoComiendo);
 	    } catch(InterruptedException ie) {ie.printStackTrace();}
 	}
 
@@ -66,9 +64,16 @@ public class DiningPhilosophers{
     */
     public static void main (String [] args) {
 	int numFilos = 5;
-	int runTime = 20000; // número arbitrario 
-
-	System.out.printf("Filósofos llegando a la cena: %d, tiempo de ejecución: %d s\n", numFilos, runTime);
+	int runTime = 20000; // número arbitrario
+	if (args.length > 0){
+	    try{
+		runTime = Integer.parseInt(args[0]);
+		if (runTime <= 0) {
+		    runTime = 20000;
+		}
+	    } catch(NumberFormatException nfe){nfe.printStackTrace();}
+	} 
+	System.out.printf("Filósofos llegando a la cena: %d\n", numFilos);
         Random random = new Random(runTime/5);
 	long tiempoPensando  = (long) (Math.random() * runTime); // el tiempo para pensar de cada filósofo
 	long tiempoComiendo = (long) (Math.random() * runTime); // el tiempo para comer de cada filósofo
