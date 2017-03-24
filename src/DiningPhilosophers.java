@@ -15,7 +15,7 @@ public class DiningPhilosophers{
 	    this.tiempoComer = tiempoComer;
 	    this.ds = ds;
 	    this.random = new Random();
-	    System.out.printf("Este es el filosofo %d. Tiempo pensando: %d, tiempo comiendo %d \n", id, tiempoPensar, tiempoComer);
+	    System.out.printf("Este es el filosofo %d.\n", this.id);
 	    new Thread(this).start();
 	}
 
@@ -23,13 +23,12 @@ public class DiningPhilosophers{
 	 * el filósofo piensa y su hilo se bloquea durante el tiempo que piense 
 	 */
 	private void piensa() {
-	    random.setSeed(tiempoPensar*1000);
-	    long tiempoPensando = (random.nextLong());
-	    //tiempoPensar = 1 + (long) (Math.random());
+	    //long tiempoPensando = ((long) (random.nextInt((int)tiempoPensar)))/100;
+	    tiempoPensar = (long) (Math.random() * (tiempoPensar/100)); 
 	    System.out.printf("Tiempo: %d, el filósofo %d está pensando por %d ms \n",
-			      System.currentTimeMillis(), id, tiempoPensando);
+			      System.currentTimeMillis(), this.id, tiempoPensar);
 	    try {
-		Thread.sleep(tiempoPensando);
+		Thread.sleep(this.tiempoPensar);
 	    } catch(InterruptedException ie) {ie.printStackTrace();}
 	}
 
@@ -37,13 +36,13 @@ public class DiningPhilosophers{
 	 * el filósofo come y su hilo se bloquea durante el tiempo que coma
 	 */
 	private void come() {
-	    random.setSeed(tiempoComer);
-	    long tiempoComiendo = (random.nextLong());
-	    //tiempoComer = 1 + (long) (Math.random());
+	    //long tiempoComiendo = ((long) (random.nextInt((int)tiempoComer))/100);
+	    //tiempoComer = random.nextLong();
+	    tiempoComer = (long) (Math.random() * (tiempoComer/100));
 	    System.out.printf("Tiempo: %d, el filósofo %d está comiendo por %d ms \n",
-			      System.currentTimeMillis(), id, tiempoComiendo);
+			      System.currentTimeMillis(), this.id, tiempoComer);
 	    try {
-		Thread.sleep(tiempoComiendo);
+		Thread.sleep(tiempoComer);
 	    } catch(InterruptedException ie) {ie.printStackTrace();}
 	}
 
@@ -67,21 +66,26 @@ public class DiningPhilosophers{
     */
     public static void main (String [] args) {
 	int numFilos = 5;
-	int runTime = 70000;
-	boolean checkStarving = false;
+	int runTime = 20000; // número arbitrario 
 
-	System.out.printf("Filósofos llegando a la cena: %d, tiempo de ejecución: %d\n", numFilos, runTime);
-	long tiempoPensando  = 9; // el tiempo para pensar de cada filósofo
-	long tiempoComiendo = 11; // el tiempo para comer de cada filósofo
+	System.out.printf("Filósofos llegando a la cena: %d, tiempo de ejecución: %d s\n", numFilos, runTime);
+        Random random = new Random(runTime/5);
+	long tiempoPensando  = (long) (Math.random() * runTime); // el tiempo para pensar de cada filósofo
+	long tiempoComiendo = (long) (Math.random() * runTime); // el tiempo para comer de cada filósofo
 
-	DiningServer ds = new DiningServer(numFilos, checkStarving);
+	DiningServer ds = new DiningServer(numFilos);
 	for (int x = 0; x < numFilos; x++)
 	    new Philosopher(x, tiempoPensando, tiempoComiendo, ds);
 	System.out.println("Todos los filósofos se han sentado en la mesa");
+
+	/*
+	Había pensado en que el programa se detuviera después de un tiempo
+	determinado (runTime) pero no les daba tiempo de comer a todos los filósofos
 	try{
-	    Thread.sleep(runTime*1000);
+	  Thread.sleep(runTime*20000);
 	} catch(InterruptedException ie) {ie.printStackTrace();}
 	System.out.println("La cena ha terminado");
 	System.exit(0);
+	*/
     }
 }

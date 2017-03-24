@@ -1,49 +1,43 @@
 class DiningServer{
-    private boolean checkStarving; // revisa la hambruna de los filosofos
     private int numFilos; // número de filósofos en la mesa
-    private int [] estados; 
+    private int [] estados;
     // posibles estados del filosofos
     private static final int
 	PENSANDO = 0, 
 	HAMBRIENTO = 1, 
-	FAMELICO = 2, //con mucha mucha hambre!!!
-	COMIENDO = 3;
+	COMIENDO = 2;
 
     /*Constructor del servicio*/
-    public DiningServer(int numFilos, boolean checkStarving) {
+    public DiningServer(int numFilos) {
 	this.numFilos = numFilos;
-	this.checkStarving = checkStarving;
 	estados = new int[numFilos];
 	for (int x = 0; x < numFilos; x++) estados[x] = PENSANDO;
-	System.out.println("Revisión de hambruna: " + checkStarving);
     }
 
-    /*el i-ésimo filosofo mira a su izquierda*/
+    /*el que esté a la izquierda del i-ésimo filósofo*/
     private int izq(int i) {
-	return (this.numFilos + i - 1) % this.numFilos;
+	return (numFilos + i - 1) % this.numFilos;
     }
 
-    /*el i-ésimo filósofo mira a su derecha*/
+    /* el que está a la derecha del i-ésimo filósofo*/
     private int der(int i){
 	return (i + 1) % this.numFilos;
     }
 
-    /*El filosofo se muere de hambre*/
-    private void hambre(int k) {
-	// revisa si el filosofo tiene hambre y si los filosofos a su lado no mueran de hambre
+    /*
+     * El k-esimo filosofo se fija si los filosofos a su lado 
+     * no están comiendo o hambrientos
+     */
+    private void pruebaHambre(int k) {
+	// revisa si el filosofo tiene hambre y los que están a su lado  no están comiendo
 	if (estados[k] == HAMBRIENTO &&
-	    estados[izq(k)] != FAMELICO && estados[der(k)] != FAMELICO){
-	    estados[k] = FAMELICO;
-	}
-    }
-
-    private void pruebaHambre(int k, boolean checkStarving) {
-	if(estados[izq(k)] != COMIENDO && estados[izq(k)] != FAMELICO &&
-	   (estados[k] == HAMBRIENTO || estados[k] == FAMELICO) &&
-	   estados[der(k)] != FAMELICO && estados[der(k)] != COMIENDO)
-	    estados[k] = COMIENDO;
-	else if (checkStarving)
-	    hambre(k);
+	    estados[izq(k)] != COMIENDO && estados[der(k)] != COMIENDO){
+	    estados[k] = COMIENDO; //El filosofo no puede comer y se pone a pensar
+	    this.notifyAll();
+	} //else {
+	    // Si los filosofos a su lado están comiendo o quieren comer, se pone a pensar
+	    //estados[k] = PENSANDO;
+	//}
     }
     
     /**
@@ -52,8 +46,8 @@ class DiningServer{
     */
     public synchronized void tomaTenedor(int i){
 	estados[i] = HAMBRIENTO;
-	pruebaHambre(i, false);
-	while (estados[i] != COMIENDO){
+	pruebaHambre(i);
+	if (estados[i] != COMIENDO){
 	    try{
 		this.wait();
 	    } catch (InterruptedException ie){
@@ -70,9 +64,11 @@ class DiningServer{
     public synchronized void regresaTenedor(int i){
 	estados[i] = PENSANDO; // Si ya comió, se pone a pensar (o dormir)
 	// revisa el estado de sus vecinos
-	pruebaHambre(izq(i), checkStarving);
-	pruebaHambre(der(i), checkStarving);
+	pruebaHambre(izq(i));
+	pruebaHambre(der(i));
+	//notifica a todos los procesos que dejó de comer 
 	this.notifyAll();
+
     }
     
 }
